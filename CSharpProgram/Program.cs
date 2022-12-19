@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace CSharpProgram
 {
@@ -9,29 +8,39 @@ namespace CSharpProgram
 		{
 			Console.WriteLine($"int형 변수에 할당된 메모리: {sizeof(int)}Byte");
 
-			int bigNumber = 1_000_000;
-			Console.WriteLine((bigNumber - 1000).ToString());
+			Console.WriteLine((5 == 10) || (5 < 10));
 
-			Shape shape = Shape.Rect;
-			Console.WriteLine($"{(int)shape}");
+			int bitNumber = 10;//1010
+			int result = 0;
+			result = bitNumber & 0b_0010;
+			Console.WriteLine(Convert.ToString(result, 2));
 
-			string? myName = Console.ReadLine();
-			Console.WriteLine(myName);
+			/*			Console.WriteLine(Function.WriteSentence());
+						Console.WriteLine(Function.AddAge(10));
+						Console.WriteLine(Function.CalculateHypotenuse());
 
-			float input;
-			float.TryParse(Console.ReadLine(), out input);
-			const float PI = 3.14f;
-			float S = 4f * PI * input * input;
-			float V = 4f / 3f * PI * input * input * input;
-			Console.WriteLine($"구의 겉넓이: {S}, 구의 부피: {V}");
+						Console.WriteLine(Function.CalculateBoxVolumeAndSurfaceArea());
+						Console.WriteLine(Function.GetSquareMeter());
+						Console.WriteLine(Function.GetSeconds());
+						Function.CalculateTotalScore();*/
+
+			/*Console.WriteLine(Program2.GetMaximumCandy());
+			Console.WriteLine(Program2.ConvertToCelsius());
+			Console.WriteLine(Program2.DiceGame());*/
+
+			/*			int cupSize;
+						int.TryParse(Console.ReadLine(), out cupSize);
+						Console.WriteLine(Program2.GetCupSize(cupSize));*/
+
+			Program2.FindSecretCode();
+			Console.WriteLine(Program2.GetLargeNumber());
+
 		}
-	}
 
-	enum Shape
-	{
-		Circle,
-		Tri,
-		Rect
+		static void Foo()
+		{
+
+		}
 	}
 }
 
@@ -125,8 +134,27 @@ namespace CSharpProgram
 * 표준 입출력 - 키보드로 입력, 모니터로 출력
 * 
 * 형 변환 - 캐스팅 연산자, 암시적 형 변환, 명시적 형 변환. casting, Convert, Parse, TryParse
+* 
+* 논리 연산자(&&, ||, !)
+* 
+* 비트 연산자(&, |, ^, ~, >>, <<)
+* 왼쪽으로 시프트하면 2배, 오른쪽으로 시프트하면 1/2배
+* 
+* 조건 연산자((조건식) ? (식1) : (식2))
+* 
+* sizeof 연산자 - 자료형의 크기를 반환. OS나 CPU에 따라 결과값이 다를 수 있다
+* 
+* 연산자 우선순위 - 여러 개의 연산자를 동시에 사용할 때는 우선순위에 따라 계산
+* 
+* 순차문 - 순서대로 실행
+* 제어문 - 프로그램의 흐름을 변경. 조건문(if/else문, switch문), 반복문(for문, while문)으로 나뉜다
+* 
+* 
+* 
 */
 
-//(alt + shift + .) + (alt + shift + 화살표) = 다중캐럿
-
-//이스케이프 시퀀스, 메모리 세이프티
+//(alt + shift + 화살표) = 다중캐럿
+//리터럴 ToString
+//숫자 구분자
+//문자열 정렬(패딩)
+//TryParse null값이면 0대입
