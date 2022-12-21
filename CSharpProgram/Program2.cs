@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CSharpProgram
 {
-	internal class Program2
+	class Program2
 	{
 		//최대한도의 사탕 구매하기
 		public static string GetMaximumCandy()

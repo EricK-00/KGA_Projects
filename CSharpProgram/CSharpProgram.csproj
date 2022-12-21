@@ -8,9 +8,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Function.cs" />
-    <Compile Remove="Program2.cs" />
-  </ItemGroup>
-
 </Project>

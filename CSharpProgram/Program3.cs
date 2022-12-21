@@ -2,7 +2,7 @@
 
 namespace CSharpProgram
 {
-	internal class Program3
+	class Program3
 	{
 		//[LAB 1]
 		//자음, 모음 개수 출력하기

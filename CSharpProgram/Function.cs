@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CSharpProgram
 {
@@ -11,7 +7,7 @@ namespace CSharpProgram
 		//주어, 동사, 목적어를 입력받아 문장 출력
 		public static string WriteSentence()
 		{
-			string[] words = new string[3];
+			string?[] words = new string[3];
 			words[0] = "주어"; words[1] = "동사"; words[2] = "목적어";
 			for (int i = 0; i < words.Length; i++)
 			{
