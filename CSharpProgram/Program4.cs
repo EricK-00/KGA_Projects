@@ -5,13 +5,6 @@ namespace MySpace
 {
 	class Program4
 	{
-		Unit unit = new Unit(55, 100);
-
-		public void Method()
-		{
-			Console.WriteLine($"unit의 a: {unit.A}\nunit의 b: {unit.B}");
-		}
-
 		public static void PlaceStar()
 		{
 			int userInput;
@@ -160,18 +153,6 @@ namespace MySpace
 			{
 				Console.WriteLine("실패");
 			}
-		}
-	}
-
-	class Unit
-	{
-		public int A { get; }
-		public int B { get; }
-
-		public Unit(int a, int b)
-		{
-			A = a;
-			B = b;
 		}
 	}
 }
