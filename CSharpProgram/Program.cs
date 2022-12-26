@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net.Http.Headers;
+using System.Reflection;
 
 namespace CSharpProgram
 {
@@ -6,9 +8,9 @@ namespace CSharpProgram
 	{
 		static void Main(string[] args)
 		{
-			Class1.CompareString();
-			Class1.VendingMachine();
-			Class1.PrintLastDayInMonth();
+			LearnArray.LearnArray.FindMaxInArray();
+			LearnArray.LearnArray.FindAppleLover();
+			LearnArray.LearnArray.SortMethod();
 		}
 	}
 }
