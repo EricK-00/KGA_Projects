@@ -8,14 +8,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Class1.cs" />
-    <Compile Remove="Function.cs" />
-    <Compile Remove="LearnArray.cs" />
-    <Compile Remove="MyClass.cs" />
-    <Compile Remove="Program2.cs" />
-    <Compile Remove="Program3.cs" />
-    <Compile Remove="Program4.cs" />
-  </ItemGroup>
-
 </Project>
