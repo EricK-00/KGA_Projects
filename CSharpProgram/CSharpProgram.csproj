@@ -8,8 +8,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Board.cs" />
-  </ItemGroup>
-
 </Project>

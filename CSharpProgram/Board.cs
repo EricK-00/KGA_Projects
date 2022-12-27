@@ -141,7 +141,7 @@ namespace CSharpProgram
 
 			//보드 출력
 			PrintBoard();
-			return isEnd;
+			return isEnd;//게임종료인지 반환
 		}
 
 		private void PrintBoard()
