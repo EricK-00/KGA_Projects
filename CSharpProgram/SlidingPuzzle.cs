@@ -33,7 +33,7 @@ namespace CSharpProgram
 			{
 				Console.Write("보드의 길이를 입력하세요(범위: 2 ~ 10): ");
 			}
-			while (!int.TryParse(Console.ReadLine(), out boardLength) || boardLength < 2 || boardLength > 30);
+			while (!int.TryParse(Console.ReadLine(), out boardLength) || boardLength < 2 || boardLength > 10);
 
 			board = new int[boardLength, boardLength];
 
@@ -57,22 +57,8 @@ namespace CSharpProgram
 					board[randomNum / boardLength, randomNum % boardLength] = temp;
 				}
 			}
-			//빈 칸 위치 가져오기
-			for (int i = 0; i < boardLength; i++)
-			{
-				if (blankRow != -1 && blankCol != -1)
-					break;
-				for (int j = 0; j < boardLength; j++)
-				{
-					if (blankRow != -1 && blankCol != -1)
-						break;
-					if (board[i, j] == 0)
-					{
-						blankRow = i;
-						blankCol = j;
-					}
-				}
-			}
+			//빈 칸 위치 설정하기
+			SetBlankPos();
 
 			//유효한 보드가 아닐 때 빈 칸을 제외한 숫자 섞기
 			while (!IsValidBoard())
@@ -94,9 +80,9 @@ namespace CSharpProgram
 
 				int blankIndex = blankRow * boardLength + blankCol;
 
-				if (randomNum1 >= blankIndex)
+				if (randomNum1 >= blankIndex + 1)
 					randomNum1 += 1;
-				if (randomNum2 >= blankIndex)
+				if (randomNum2 >= blankIndex + 1)
 					randomNum2 += 1;
 				if (randomNum2 >= randomNum1)
 					randomNum2 += 1;
@@ -234,6 +220,25 @@ namespace CSharpProgram
 			}
 
 			return false;
+		}
+
+		private void SetBlankPos()
+		{
+			for (int i = 0; i < boardLength; i++)
+			{
+				if (blankRow != -1 && blankCol != -1)
+					break;
+				for (int j = 0; j < boardLength; j++)
+				{
+					if (blankRow != -1 && blankCol != -1)
+						break;
+					if (board[i, j] == 0)
+					{
+						blankRow = i;
+						blankCol = j;
+					}
+				}
+			}
 		}
 
 		//보드 출력하기
