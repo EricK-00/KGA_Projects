@@ -6,8 +6,9 @@ namespace CSharpProgram
 	{
 		static void Main(string[] args)
 		{
-			Board board = new Board();
-			board.PlayGame();
+			Class1.CompareString();
+			Class1.VendingMachine();
+			Class1.PrintLastDayInMonth();
 		}
 	}
 }
