@@ -8,4 +8,21 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Board.cs" />
+    <Compile Remove="Class1.cs" />
+    <Compile Remove="Function.cs" />
+    <Compile Remove="LearnArray.cs" />
+    <Compile Remove="MineSweeper.cs" />
+    <Compile Remove="Program2.cs" />
+    <Compile Remove="Program3.cs" />
+    <Compile Remove="Program4.cs" />
+    <Compile Remove="text.cs" />
+    <Compile Remove="TicTacToe.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="text.cs" />
+  </ItemGroup>
+
 </Project>
