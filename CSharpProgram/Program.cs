@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 namespace CSharpProgram
 {
@@ -7,8 +9,8 @@ namespace CSharpProgram
 	{
 		static void Main(string[] args)
 		{
-			SlidingPuzzle slidingPuzzle = new SlidingPuzzle();
-			slidingPuzzle.PlaySlidingPuzzle();
+			CardGame cardGame = new CardGame();
+			cardGame.PlayCardGame();
 		}
 	}
 }
