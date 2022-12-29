@@ -9,8 +9,8 @@ namespace CSharpProgram
 	{
 		static void Main(string[] args)
 		{
-			CardGame cardGame = new CardGame();
-			cardGame.PlayCardGame();
+			BattleGame battleGame = new BattleGame();
+			battleGame.PlayBattleGame();
 		}
 	}
 }
