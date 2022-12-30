@@ -106,13 +106,13 @@ namespace CSharpProgram
 				if (!isBattleEnd)
 					Attack(player, monster);
 			}
+			Console.WriteLine();
 		}
 
 		private void Attack(GameCharacter attacker, GameCharacter defenser)
 		{
 			defenser.HP -= attacker.Power;
 			Console.WriteLine($"{attacker.Name} 공격: {defenser.Name} {attacker.Power} 피해. 남은 {defenser.Name} 체력: {defenser.HP}");
-			Console.WriteLine();
 
 			if (defenser.HP <= 0)
 			{
@@ -152,7 +152,7 @@ namespace CSharpProgram
 		private void ShowWeapon()
 		{
 			Console.WriteLine("---------------------------------------------------------------");
-			Console.Write($"장착무기: {player.weapon.WeaponName}");
+			Console.Write($"장착무기: {player.weapon.WeaponName} [공격력 +{player.weapon.WeaponPower}]");
 			Console.WriteLine();
 			Console.WriteLine("---------------------------------------------------------------");
 		}
@@ -203,7 +203,15 @@ namespace CSharpProgram
 					return;
 				}
 			}
-			Console.WriteLine("장착할 수 없는 아이템입니다. [장착 가능한 아이템: 낡은 검, 검, 대검]");
+			Console.Write("장착할 수 없는 아이템입니다. [장착 가능한 아이템: ");
+			string[] weaponName = Weapon.weaponNameArray;
+			for (int i = 0; i < weaponName.Length; i++)
+			{
+				if (i == Weapon.weaponNameArray.Length - 1)
+					Console.WriteLine($"{weaponName[i]}]");
+				else
+					Console.Write($"{weaponName[i]}, ");
+			}
 		}
 
 		private void GameOver()

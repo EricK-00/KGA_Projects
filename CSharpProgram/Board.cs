@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CSharpProgram
 {
@@ -11,17 +14,28 @@ namespace CSharpProgram
 		int playerRow;
 		int playerColumn;
 
+		bool isEnd = false;
+		int coin = 0;
+		int turn = 0;
+
+		int[] blankRows;
+		int[] blankColumns;
+		int maximumBlankCount;
+		int currentBlankCount = 0;
+
 		enum BoardObject
 		{
 			NONE = 0,
 			WALL,
-			PLAYER
+			PLAYER,
+			COIN
 		}
 
 		public void PlayGame()
 		{
 			InitializeGame();
-			while (!MovePlayer()) { };
+			while (!isEnd && coin < 3)
+				MovePlayer();
 			Console.WriteLine("게임 종료");
 		}
 
@@ -31,8 +45,8 @@ namespace CSharpProgram
 			int boardSize;
 			while (true)
 			{
-				Console.Write("보드의 크기를 입력하세요(최소 3이상): ");
-				if (int.TryParse(Console.ReadLine(), out boardSize) && boardSize >= 3)
+				Console.Write("보드의 크기를 입력하세요(최소 4이상): ");
+				if (int.TryParse(Console.ReadLine(), out boardSize) && boardSize >= 4)
 				{
 					rowSize = columnSize = boardSize;
 					board = new int[rowSize, columnSize];
@@ -63,14 +77,69 @@ namespace CSharpProgram
 
 			//보드 출력
 			PrintBoard();
+			Console.WriteLine($"[현재 코인: {coin}]");
+
+			maximumBlankCount = (rowSize - 2) * (columnSize - 2) - 1;
+			blankRows = new int[maximumBlankCount];
+			blankColumns = new int[maximumBlankCount];
 		}
 
-		private bool MovePlayer()
+		//랜덤한 빈 칸의 위치 가져오기
+		private (int, int) GetRandomBlankPosition()
 		{
-			bool isEnd = false;
-			char[] keys = new char[15] { 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D', 'ㅈ', 'ㅁ', 'ㄴ', 'ㅇ', 'q', 'Q', 'ㅂ' };
+			int boardStartIndex = 0;
+			currentBlankCount = 0;
+			for (int i = 0; i < maximumBlankCount; i++)
+			{
+				for (int j = boardStartIndex; j < board.Length; j++)
+				{
+					if (board[j / columnSize, j % columnSize] == (int)BoardObject.NONE)
+					{
+						blankRows[i] = j / columnSize;
+						blankColumns[i] = j % columnSize;
+						++currentBlankCount;
+						boardStartIndex = j + 1;
+						break;
+					}
+				}
+			}
+
+			int randomIndex = new Random().Next(0, currentBlankCount);
+			return (blankRows[randomIndex], blankColumns[randomIndex]);
+		}
+
+		//코인 생성하기
+		private void GenerateCoin()
+		{
+			string noticeStr = "코인이 랜덤한 위치에 생성됩니다.";
+			foreach (char item in noticeStr)
+			{
+				Task.Delay(100).Wait();
+				//Thread.Sleep(100);
+				Console.Write(item);
+			}
+			Task.Delay(1000).Wait();
+			//Thread.Sleep(1000);
+			Console.Clear();
+
+			//코인 생성
+			(int coinRow, int coinColumn) = GetRandomBlankPosition();
+			board[coinRow, coinColumn] = (int)BoardObject.COIN;
+
+			PrintBoard();
+		}
+
+		private void MovePlayer()
+		{
 			char userInput;
 			bool isValidKey = false;
+
+			//코인 생성
+			if (turn % 3 == 0)
+			{
+				GenerateCoin();
+				Console.WriteLine($"[현재 코인: {coin}]");
+			}
 
 			//이동 입력 받기
 			while (!isValidKey)
@@ -116,7 +185,7 @@ namespace CSharpProgram
 					case 'Q':
 					case 'ㅂ':
 						isEnd = true;
-						return isEnd;
+						return;
 					default:
 						Console.WriteLine("잘못된 문자입니다.");
 						continue;
@@ -133,15 +202,21 @@ namespace CSharpProgram
 				{
 					isValidKey = true;
 					board[playerRow, playerColumn] = (int)BoardObject.NONE;
+					if (board[nextRow, nextColumn] == (int)BoardObject.COIN)
+						++coin;
+
 					playerRow = nextRow;
 					playerColumn = nextColumn;
 					board[playerRow, playerColumn] = (int)BoardObject.PLAYER;
 				}
 			}
 
-			//보드 출력
+			//결과 보드 출력
+			Console.Clear();
 			PrintBoard();
-			return isEnd;//게임종료인지 반환
+			Console.WriteLine($"[현재 코인: {coin}]");
+
+			++turn;
 		}
 
 		private void PrintBoard()
@@ -159,6 +234,9 @@ namespace CSharpProgram
 							break;
 						case (int)BoardObject.WALL:
 							word = "□";
+							break;
+						case (int)BoardObject.COIN:
+							word = "C ";
 							break;
 						default:
 							word = ". ";
