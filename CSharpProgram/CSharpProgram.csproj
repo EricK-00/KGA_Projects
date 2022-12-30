@@ -21,6 +21,7 @@
     <Compile Remove="LottoNumberGenerator.cs" />
     <Compile Remove="MineSweeper.cs" />
     <Compile Remove="MyClass.cs" />
+    <Compile Remove="Override.cs" />
     <Compile Remove="Program2.cs" />
     <Compile Remove="Program3.cs" />
     <Compile Remove="Program4.cs" />
@@ -29,10 +30,6 @@
     <Compile Remove="text.cs" />
     <Compile Remove="TicTacToe.cs" />
     <Compile Remove="TrumpCard.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="text.cs" />
   </ItemGroup>
 
 </Project>
