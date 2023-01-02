@@ -114,12 +114,12 @@ namespace CSharpProgram
 			string noticeStr = "코인이 랜덤한 위치에 생성됩니다.";
 			foreach (char item in noticeStr)
 			{
-				Task.Delay(100).Wait();
-				//Thread.Sleep(100);
+				//Task.Delay(100).Wait();
+				Thread.Sleep(100);
 				Console.Write(item);
 			}
-			Task.Delay(1000).Wait();
-			//Thread.Sleep(1000);
+			//Task.Delay(1000).Wait();
+			Thread.Sleep(1000);
 			Console.Clear();
 
 			//코인 생성
