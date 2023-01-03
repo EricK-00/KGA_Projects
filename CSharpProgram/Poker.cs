@@ -14,17 +14,69 @@ namespace CSharpProgram
 			number = number_;
 		}
 
-		public int GetCardPower()
+		public int GetCardScore()
 		{
-			int cardNumberPower = number - 1;
-			if (number == 1) cardNumberPower = 13;
-			int cardPower = 4 * cardNumberPower - markIndex;
+			int cardNumberScore = number - 1;
+			if (number == 1) cardNumberScore = 13;
+			int cardScore = 4 * cardNumberScore - markIndex;
 
-			return cardPower;
+			return cardScore;
+		}
+
+		public char GetCardMark()
+		{
+			char markChar;
+
+                switch (markIndex)
+                {
+                    case 0:
+                    markChar = '♠';
+                        break;
+                    case 1:
+                    markChar = '◆';
+                        break;
+                    case 2:
+                    markChar = '♥';
+                        break;
+                    case 3:
+                    markChar = '♣';
+                        break;
+                    default:
+					markChar = '?';
+                        break;
+                }
+
+			return markChar;
+            }
+
+		public string GetCardNumberString()
+		{
+			string numberString;
+
+			switch (number)
+			{
+				case 1:
+                    numberString = "A";
+					break;
+				case 11:
+                    numberString = "J";
+					break;
+				case 12:
+                    numberString = "Q";
+					break;
+				case 13:
+                    numberString = "K";
+					break;
+				default:
+                    numberString = number.ToString();
+					break;
+			}
+
+			return numberString;
 		}
 	}
 
-	enum CardCombination
+	enum Combination
 	{
 		노페어 = 0,
 		원페어,
@@ -48,70 +100,56 @@ namespace CSharpProgram
 		int currentCardIndex;
 		int bettingPoint;
 		Card[] deck;
-		Card[] computerCards;
-		Card[] playerCards;
-		List<Card> combinationCards;
+        Card[] playerHands;
+        Card[] computerHands;
+		List<Card> handsCombination;
 
 		string playerName = "플레이어";
 		const string COMPUTER_NAME = "컴퓨터";
 
 		const int FIRST_COMPUTER_CARDS_END_INDEX = 4;
-		int computerCardsEndIndex;
-		int playerCardsEndIndex;
+		int computerHandsEndIndex;
+		int playerHandsEndIndex;
 
-		int turnCount;
-
-		Random random = new Random();
+		int roundCount;
 
 		public void PlayPoker()
 		{
 			Console.WriteLine("<포인트를 10만 이상 획득하면 승리, 포인트를 모두 잃으면 패배>");
 			Console.Write("플레이어의 이름을 입력하세요: ");
 			playerName = Console.ReadLine();
+
 			while (!GetIsGameOver())
 			{
-				++turnCount;
-				Console.WriteLine("--------------------------------------------------------------------------------------");
-				Console.Write("라운드를 시작하려면 아무 키나 입력하세요...");
-				Console.ReadLine();
-				Console.WriteLine($"<라운드 {turnCount}>\n[보유 포인트: {gamePoint}]");
-				Console.WriteLine();
+				Combination playerCombination;
+				int playerTopCardScore;
+				Combination computerCombination;
+				int computerTopCardScore;
 
-				currentCardIndex = 0;
+				Console.WriteLine("--------------------------------------------------------------------------------------");
+				StartNewRound();
+
 				ShuffleDeck(deck);
 
-				SetUpCards(playerName, playerCards, 0, playerCardsEndIndex);
-				Console.WriteLine($"{playerName}(이)가 뽑은 카드: {ShowCard(playerCards, playerCardsEndIndex)} ");
-				Console.Write($"[{playerName}의 조합: {GetCombination(playerCards, playerCardsEndIndex).Item1}] ");
-				Console.WriteLine($"|{ShowCard(combinationCards)}|");
-				Console.WriteLine();
+				SetUpHands(playerHands, 0, playerHandsEndIndex);
+				playerCombination = GetCombination(playerHands, playerHandsEndIndex, out handsCombination).Item1;
+				PrintHandsAndCombination(playerName, playerHands, playerHandsEndIndex, playerCombination, handsCombination);
 
-				SetUpCards(COMPUTER_NAME, computerCards, 0, FIRST_COMPUTER_CARDS_END_INDEX);
-				Console.WriteLine($"{COMPUTER_NAME}(이)가 뽑은 카드: {ShowCard(computerCards, FIRST_COMPUTER_CARDS_END_INDEX)} ");
-				Console.Write($"[{COMPUTER_NAME}의 조합: {GetCombination(computerCards, FIRST_COMPUTER_CARDS_END_INDEX).Item1}] ");
-				Console.WriteLine($"|{ShowCard(combinationCards)}|");
-				Console.WriteLine();
+				SetUpHands(computerHands, 0, FIRST_COMPUTER_CARDS_END_INDEX);
+                computerCombination = GetCombination(computerHands, FIRST_COMPUTER_CARDS_END_INDEX, out handsCombination).Item1;
+                PrintHandsAndCombination(COMPUTER_NAME, computerHands, FIRST_COMPUTER_CARDS_END_INDEX, computerCombination, handsCombination);
 
 				Bet();
-				Console.WriteLine();
 
-				ReplaceCards();
-				Console.WriteLine();
+				ReplaceHands();
+                (playerCombination, playerTopCardScore) = GetCombination(playerHands, playerHandsEndIndex, out handsCombination);
+                PrintHandsAndCombination($"교체 후 {playerName}", playerHands, playerHandsEndIndex, playerCombination, handsCombination);
 
-				Console.WriteLine($"교체 이후 {playerName}의 카드: {ShowCard(playerCards, playerCardsEndIndex)} ");
-				//Console.Write($"[조합: {GetCombination(playerCards, playerCardsEndIndex).Item1} {GetCombination(playerCards, playerCardsEndIndex).Item2}]");
-				Console.Write($"[{playerName}의 조합: {GetCombination(playerCards, playerCardsEndIndex).Item1}] ");
-				Console.WriteLine($"|{ShowCard(combinationCards)}|");
-				Console.WriteLine();
+				SetUpHands(computerHands, FIRST_COMPUTER_CARDS_END_INDEX + 1, computerHandsEndIndex);
+                (computerCombination, computerTopCardScore) = GetCombination(computerHands, computerHandsEndIndex, out handsCombination);
+                PrintHandsAndCombination($"2장을 추가한 {COMPUTER_NAME}", computerHands, computerHandsEndIndex, computerCombination, handsCombination);
 
-				SetUpCards(COMPUTER_NAME, computerCards, FIRST_COMPUTER_CARDS_END_INDEX + 1, computerCardsEndIndex);
-				Console.WriteLine($"2장을 추가로 뽑은 후 {COMPUTER_NAME}의 카드: {ShowCard(computerCards, computerCardsEndIndex)} ");
-				//Console.Write($"[조합: {GetCombination(computerCards, computerCardsEndIndex).Item1} {GetCombination(computerCards, computerCardsEndIndex).Item2}]");
-				Console.Write($"[{COMPUTER_NAME}의 조합: {GetCombination(computerCards, computerCardsEndIndex).Item1}] ");
-				Console.WriteLine($"|{ShowCard(combinationCards)}|");
-				Console.WriteLine();
-
-				CompareCombination(GetCombination(computerCards, computerCardsEndIndex), GetCombination(playerCards, playerCardsEndIndex));
+                CompareCombination((computerCombination, computerTopCardScore), (playerCombination, playerTopCardScore));
 				Console.WriteLine("--------------------------------------------------------------------------------------");
 			}
 
@@ -133,20 +171,33 @@ namespace CSharpProgram
 				deck[i].markIndex = i / 13;
 				deck[i].number = i % 13 + 1;
 			}
+            playerHands = new Card[5];
+            computerHands = new Card[7];
+			handsCombination = new List<Card>();
 
-			computerCards = new Card[7];
-			playerCards = new Card[5];
-			combinationCards = new List<Card>();
+			computerHandsEndIndex = computerHands.Length - 1;
+			playerHandsEndIndex = playerHands.Length - 1;
 
-			computerCardsEndIndex = computerCards.Length - 1;
-			playerCardsEndIndex = playerCards.Length - 1;
-
-			turnCount = 0;
+			roundCount = 0;
 		}
 
+		//라운드 초기화 메서드
+		private void StartNewRound()
+		{
+            ++roundCount;
+            Console.Write("라운드를 시작하려면 아무 키나 입력하세요...");
+            Console.ReadLine();
+            Console.WriteLine($"<라운드 {roundCount}>\n[보유 포인트: {gamePoint}]");
+            Console.WriteLine();
+            currentCardIndex = 0;
+        }
+
+		//덱 셔플 메서드
 		private void ShuffleDeck(Card[] deck)
 		{
-			for (int i = 0; i < deck.Length - 1; i++)
+            Random random = new Random();
+
+            for (int i = 0; i < deck.Length - 1; i++)
 			{
 				int randomIndex = random.Next(i, deck.Length);
 
@@ -156,122 +207,69 @@ namespace CSharpProgram
 			}
 		}
 
+		//카드 뽑기 메서드
 		private Card DrawCard()
 		{
 			++currentCardIndex;
 			return deck[currentCardIndex];
 		}
+
+		//카드를 문자열로 반환하는 메서드(오버로딩)
+		//카드 한 장
 		private string ShowCard(Card card)
 		{
-			char[] marks = new char[4] { '♠', '◆', '♥', '♣' };
-			string resultString = string.Empty;
-			string cardNumberString;
-
-			switch (card.number)
-			{
-				case 1:
-					cardNumberString = "A";
-					break;
-				case 11:
-					cardNumberString = "K";
-					break;
-				case 12:
-					cardNumberString = "Q";
-					break;
-				case 13:
-					cardNumberString = "J";
-					break;
-				default:
-					cardNumberString = card.number.ToString();
-					break;
-			}
-
-			resultString = $"{marks[card.markIndex]} {cardNumberString}";
-
-			return resultString;
+			return $"[{card.GetCardMark()}{card.GetCardNumberString().PadLeft(2)}]";
 		}
-
+		//카드 배열
 		private string ShowCard(Card[] cards, int endIndex)
 		{
-			char[] marks = new char[4] { '♠', '◆', '♥', '♣' };
-			string resultString = string.Empty;
-			string cardNumberString;
+            string resultString = string.Empty;
 
-			for (int i = 0; i <= endIndex; i++)
-			{
-				switch (cards[i].number)
-				{
-					case 1:
-						cardNumberString = "A";
-						break;
-					case 11:
-						cardNumberString = "K";
-						break;
-					case 12:
-						cardNumberString = "Q";
-						break;
-					case 13:
-						cardNumberString = "J";
-						break;
-					default:
-						cardNumberString = cards[i].number.ToString();
-						break;
-				}
+            for (int i = 0; i <= endIndex; i++)
+            {
+                if (i <= endIndex - 1)
+					resultString += $"{ShowCard(cards[i])}, ";
+                else
+                    resultString += ShowCard(cards[i]);
+            }
 
-				if (i < endIndex)
-					resultString += $"{marks[cards[i].markIndex]} {cardNumberString}, ";
-				else
-					resultString += $"{marks[cards[i].markIndex]} {cardNumberString}";
-			}
-
-			return resultString;
-		}
-
+            return resultString;
+        }
+		//카드 리스트
 		private string ShowCard(List<Card> cards)
 		{
-			char[] marks = new char[4] { '♠', '◆', '♥', '♣' };
 			string resultString = string.Empty;
-			string cardNumberString;
 
 			for (int i = 0; i < cards.Count; i++)
 			{
-				switch (cards[i].number)
-				{
-					case 1:
-						cardNumberString = "A";
-						break;
-					case 11:
-						cardNumberString = "K";
-						break;
-					case 12:
-						cardNumberString = "Q";
-						break;
-					case 13:
-						cardNumberString = "J";
-						break;
-					default:
-						cardNumberString = cards[i].number.ToString();
-						break;
-				}
-
 				if (i < cards.Count - 1)
-					resultString += $"{marks[cards[i].markIndex]} {cardNumberString}, ";
-				else
-					resultString += $"{marks[cards[i].markIndex]} {cardNumberString}";
-			}
+					resultString += $"{ShowCard(cards[i])}, ";
+                else
+                    resultString += ShowCard(cards[i]);
+            }
 
 			return resultString;
 		}
 
-		private void SetUpCards(string playerName, Card[] cards, int startIndex, int endIndex)
+		//현재 패와 카드 조합 출력 메서드
+		private void PrintHandsAndCombination(string targertName, Card[] cards, int endIndex, Combination cardCombination, List<Card> combinationList)
+		{
+            Console.WriteLine($"{targertName}의 카드: {ShowCard(cards, endIndex)}");
+            Console.Write($"{targertName}의 조합:「{cardCombination}」 ");
+            Console.WriteLine($"{{{ShowCard(combinationList)}}}\n");
+        }
+
+		//카드 패 설정 메서드
+		private void SetUpHands(Card[] cards, int startIndex, int endIndex)
 		{
 			for (int i = startIndex; i <= endIndex; i++)
 			{
 				cards[i] = DrawCard();
 			}
-		}
+        }
 
-		private void ReplaceCards()
+		//플레이어의 카드 교체 메서드
+		private void ReplaceHands()
 		{
 			int replacingCount;
 			int[] cardNumber = {0, 0};
@@ -294,7 +292,7 @@ namespace CSharpProgram
 
 			for (int i = 0; i < replacingCount; i++)
 			{
-				Console.Write("교체할 카드 위치를 입력하세요(1 ~ 5번): ");
+				Console.Write("교체할 카드의 위치를 입력하세요(1 ~ 5번): ");
 				while (true)
 				{
 					if (int.TryParse(Console.ReadLine(), out cardNumber[i]) &&
@@ -302,7 +300,7 @@ namespace CSharpProgram
 						cardNumber[i] <= 5 &&
 						cardNumber[0] != cardNumber[1])
 					{
-						Console.WriteLine($"{ShowCard(playerCards[cardNumber[i] - 1])} 선택");
+						Console.WriteLine($"{ShowCard(playerHands[cardNumber[i] - 1])} 선택");
 						break;
 					}
 					else
@@ -315,12 +313,14 @@ namespace CSharpProgram
 
 			for (int i = 0; i < replacingCount; i++)
 			{
-				Card temp = DrawCard();
-				Console.WriteLine($"{ShowCard(playerCards[cardNumber[i] - 1])} -> {ShowCard(temp)}(으)로 교체");
-				playerCards[cardNumber[i] - 1] = temp;
+				Card nextCard = DrawCard();
+				Console.WriteLine($"{ShowCard(playerHands[cardNumber[i] - 1])} -> {ShowCard(nextCard)}(으)로 교체");
+				playerHands[cardNumber[i] - 1] = nextCard;
 			}
+			Console.WriteLine();
 		}
 
+		//포인트 베팅 메서드
 		private void Bet()
 		{
 			Console.Write("베팅할 포인트를 입력하세요: ");
@@ -335,23 +335,30 @@ namespace CSharpProgram
 					continue;
 				}
 			}
-			Console.WriteLine($"{bettingPoint} 포인트 베팅");
+			if (bettingPoint == gamePoint)
+				Console.WriteLine($"{bettingPoint} 포인트 베팅(올인)\n");
+			else
+				Console.WriteLine($"{bettingPoint} 포인트 베팅\n");
 
 			gamePoint -= bettingPoint;
 		}
 
-		private (CardCombination, int) GetCombination(Card[] cards, int endIndex)
+        //카드 조합과 탑 카드(조합이 동일할 경우 비교)를 반환하는 메서드
+        #region 카드 조합 판별 메서드
+        private (Combination, int) GetCombination(Card[] cards, int endIndex, out List<Card> combinationList)
 		{
-			CardPowerComparer cardPowerComparer = new CardPowerComparer();
+			CardScoreComparer cardScoreComparer = new CardScoreComparer();
 
+			List<Card> resultList = new List<Card>();
 			List<Card> noPairList = new List<Card>();
 			List<Card> pairList = new List<Card>();
 			List<Card> tripleList = new List<Card>();
 			List<Card> fourCardList = new List<Card>();
 			List<Card> flushList = new List<Card>();
 			List<Card> straightList = new List<Card>();
-			int maxCardPower = 0;//조합이 동일할 경우 비교
-			CardCombination combination = CardCombination.노페어;
+
+            Combination combination = Combination.노페어;
+            int topCardScore = 0;//탑 카드 점수(조합이 동일할 경우 비교하는 점수)
 			Card[,] cardTable = new Card[4, 13];
 			for (int i = 0; i <= cardTable.GetUpperBound(0); i++)
 				for (int j = 0; j <= cardTable.GetUpperBound(1); j++)
@@ -367,7 +374,7 @@ namespace CSharpProgram
 				++cardMarkCount[cards[i].markIndex];
 			}
 
-			//같은 수의 개수에 따라 해당하는 리스트에 저장
+			//같은 수의 개수에 따라 해당하는 조합의 리스트에 저장
 			for (int i = 0; i <= endIndex; i++)
 			{
 				if (cardNumberCount[cards[i].number - 1] == 2)
@@ -389,42 +396,42 @@ namespace CSharpProgram
 			}
 
 			//원페어, 투페어, 트리플, 풀하우스, 포카드
-			if (fourCardList.Count >= 4 && (int)combination < (int)CardCombination.포카드)
+			if (fourCardList.Count >= 4 && (int)combination < (int)Combination.포카드)
 			{
-				combination = CardCombination.포카드;
+				combination = Combination.포카드;
 			}
-			if (tripleList.Count == 3 && pairList.Count >= 2 && (int)combination < (int)CardCombination.풀하우스)
+			if (tripleList.Count == 3 && pairList.Count >= 2 && (int)combination < (int)Combination.풀하우스)
 			{
-				combination = CardCombination.풀하우스;
+				combination = Combination.풀하우스;
 			}
-			if (tripleList.Count == 6 && (int)combination < (int)CardCombination.풀하우스)
+			if (tripleList.Count == 6 && (int)combination < (int)Combination.풀하우스)
 			{
-				combination = CardCombination.풀하우스;
+				combination = Combination.풀하우스;
 			}
-			if (tripleList.Count >= 3 && (int)combination < (int)CardCombination.트리플)
+			if (tripleList.Count >= 3 && (int)combination < (int)Combination.트리플)
 			{
-				combination = CardCombination.트리플;
+				combination = Combination.트리플;
 			}
-			if (pairList.Count >= 4 && (int)combination < (int)CardCombination.투페어)
+			if (pairList.Count >= 4 && (int)combination < (int)Combination.투페어)
 			{
-				combination = CardCombination.투페어;
+				combination = Combination.투페어;
 			}
-			if (pairList.Count == 2 && (int)combination < (int)CardCombination.원페어)
+			if (pairList.Count == 2 && (int)combination < (int)Combination.원페어)
 			{
-				combination = CardCombination.원페어;
+				combination = Combination.원페어;
 			}
 
 			//플러시
 			for (int i = 0; i < cardMarkCount.Length; i++)
 			{
-				if (cardMarkCount[i] >= 5 && (int)combination < (int)CardCombination.플러시)
+				if (cardMarkCount[i] >= 5 && (int)combination < (int)Combination.플러시)
 				{
-					combination = CardCombination.플러시;
+					combination = Combination.플러시;
 
 					flushList.Clear();
 					for (int n = 13; n > 0; n--)
 					{
-						if (flushList.Count < 5)
+						if (flushList.Count < 5 && cardTable[i, n % 13].number != -1)
 						{
 							flushList.Add(cardTable[i, n % 13]);
 						}
@@ -454,7 +461,7 @@ namespace CSharpProgram
 								cardTable[j, (i - 3) % 13].number != -1 &&
 								cardTable[j, (i - 4) % 13].number != -1)
 							{
-								combination = CardCombination.로얄스트레이트플러시;
+								combination = Combination.로얄스트레이트플러시;
 
 								straightList.Clear();
 								straightList.Add(cardTable[j, i % 13]);
@@ -468,9 +475,9 @@ namespace CSharpProgram
 						}
 
 						//마운틴
-						if ((int)combination < (int)CardCombination.마운틴)
+						if ((int)combination < (int)Combination.마운틴)
 						{
-							combination = CardCombination.마운틴;
+							combination = Combination.마운틴;
 
 							straightList.Clear();
 							for (int j = 0; j < 5; j++)
@@ -505,9 +512,9 @@ namespace CSharpProgram
 								cardTable[j, (i - 2) % 13].number != -1 &&
 								cardTable[j, (i - 3) % 13].number != -1 &&
 								cardTable[j, (i - 4) % 13].number != -1 &&
-								(int)combination < (int)CardCombination.백스트레이트플러시)
+								(int)combination < (int)Combination.백스트레이트플러시)
 							{
-								combination = CardCombination.백스트레이트플러시;
+								combination = Combination.백스트레이트플러시;
 
 								straightList.Clear();
 								straightList.Add(cardTable[j, (i - 4) % 13]);
@@ -521,9 +528,9 @@ namespace CSharpProgram
 						}
 
 						//백 스트레이트
-						if ((int)combination < (int)CardCombination.백스트레이트)
+						if ((int)combination < (int)Combination.백스트레이트)
 						{
-							combination = CardCombination.백스트레이트;
+							combination = Combination.백스트레이트;
 
 							straightList.Clear();
 							for (int j = 4; j >= 0; j--)
@@ -556,12 +563,12 @@ namespace CSharpProgram
 							cardTable[j, (i - 2) % 13].number != -1 &&
 							cardTable[j, (i - 3) % 13].number != -1 &&
 							cardTable[j, (i - 4) % 13].number != -1 &&
-						(int)combination < (int)CardCombination.스트레이트플러시)
+						(int)combination < (int)Combination.스트레이트플러시)
 						{
-							combination = CardCombination.스트레이트플러시;
+							combination = Combination.스트레이트플러시;
 
 							straightList.Clear();
-							straightList.Add(cardTable[j, i]);
+							straightList.Add(cardTable[j, i % 13]);
 							straightList.Add(cardTable[j, (i - 1) % 13]);
 							straightList.Add(cardTable[j, (i - 2) % 13]);
 							straightList.Add(cardTable[j, (i - 3) % 13]);
@@ -572,9 +579,9 @@ namespace CSharpProgram
 					}
 
 					//스트레이트
-					if ((int)combination < (int)CardCombination.스트레이트)
+					if ((int)combination < (int)Combination.스트레이트)
 					{
-						combination = CardCombination.스트레이트;
+						combination = Combination.스트레이트;
 
 						straightList.Clear();
 						for (int j = 0; j < 5; j++)
@@ -600,116 +607,131 @@ namespace CSharpProgram
 				}
 			}
 
+			//백 스트레이트, 백 스트레이트 플러시가 아니면 정렬
 			if (noPairList.Count > 0)
-				noPairList.Sort(cardPowerComparer);
+				noPairList.Sort(cardScoreComparer);
 			if (pairList.Count > 0)
-				pairList.Sort(cardPowerComparer);
+				pairList.Sort(cardScoreComparer);
 			if (tripleList.Count > 0)
-				tripleList.Sort(cardPowerComparer);
+				tripleList.Sort(cardScoreComparer);
 			if (fourCardList.Count > 0)
-				fourCardList.Sort(cardPowerComparer);
+				fourCardList.Sort(cardScoreComparer);
 			if (flushList.Count > 0)
-				flushList.Sort(cardPowerComparer);
-			if (straightList.Count > 0 && (combination != CardCombination.백스트레이트 || combination != CardCombination.백스트레이트플러시))
-				straightList.Sort(cardPowerComparer);
+				flushList.Sort(cardScoreComparer);
+			if (straightList.Count > 0 && (int)combination != (int)Combination.백스트레이트 && (int)combination != (int)Combination.백스트레이트플러시)
+				straightList.Sort(cardScoreComparer);
 
-			combinationCards.Clear();
+			//정렬된 리스트로 조합 리스트와 탑 카드 완성
 			switch (combination)
 			{
-				case CardCombination.노페어:
-					maxCardPower = noPairList[0].GetCardPower();
-					combinationCards.Add(noPairList[0]);
+				case Combination.노페어:
+					topCardScore = noPairList[0].GetCardScore();
+					resultList.Add(noPairList[0]);
 					break;
-				case CardCombination.원페어:
-					maxCardPower = pairList[0].GetCardPower();
-					combinationCards = pairList;
+				case Combination.원페어:
+					topCardScore = pairList[0].GetCardScore();
+					resultList = pairList;
 					break;
-				case CardCombination.투페어:
-					maxCardPower = pairList[0].GetCardPower();
+				case Combination.투페어:
+					topCardScore = pairList[0].GetCardScore();
 					for (int i = 0; i < 4; i++)
-					combinationCards.Add(pairList[i]);
+					resultList.Add(pairList[i]);
 					break;
-				case CardCombination.트리플:
-					maxCardPower = tripleList[0].GetCardPower();
+				case Combination.트리플:
+					topCardScore = tripleList[0].GetCardScore();
 					for (int i = 0; i < 3; i++)
-						combinationCards.Add(tripleList[i]);
+						resultList.Add(tripleList[i]);
 					break;
-				case CardCombination.풀하우스:
-					maxCardPower = tripleList[0].GetCardPower();
+				case Combination.풀하우스:
+					topCardScore = tripleList[0].GetCardScore();
 					for (int i = 0; i < 3; i++)
-						combinationCards.Add(tripleList[i]);
-					if (tripleList[3].GetCardPower() > pairList[0].GetCardPower())
+						resultList.Add(tripleList[i]);
+					
+					if (tripleList.Count > 3)
 					{
-						combinationCards.Add(tripleList[3]);
-						combinationCards.Add(tripleList[4]);
-					}
-					else
+                        resultList.Add(tripleList[3]);
+                        resultList.Add(tripleList[4]);
+                    }
+					else if (pairList.Count > 0)
 					{
-						combinationCards.Add(pairList[0]);
-						combinationCards.Add(pairList[1]);
-					}
+                        resultList.Add(pairList[0]);
+                        resultList.Add(pairList[1]);
+                    }
+
 					break;
-				case CardCombination.포카드:
-					maxCardPower = fourCardList[0].GetCardPower();
-					combinationCards = fourCardList;
+				case Combination.포카드:
+					topCardScore = fourCardList[0].GetCardScore();
+					resultList = fourCardList;
 					break;
-				case CardCombination.플러시:
-					maxCardPower = flushList[0].GetCardPower();
-					combinationCards = flushList;
+				case Combination.플러시:
+					topCardScore = flushList[0].GetCardScore();
+					resultList = flushList;
 					break;
-				case CardCombination.스트레이트:
-				case CardCombination.스트레이트플러시:
-				case CardCombination.백스트레이트:
-				case CardCombination.백스트레이트플러시:
-				case CardCombination.마운틴:
-				case CardCombination.로얄스트레이트플러시:
-					maxCardPower = straightList[0].GetCardPower();
-					combinationCards = straightList;
+				case Combination.스트레이트:
+				case Combination.스트레이트플러시:
+				case Combination.백스트레이트:
+				case Combination.백스트레이트플러시:
+				case Combination.마운틴:
+				case Combination.로얄스트레이트플러시:
+					topCardScore = straightList[0].GetCardScore();
+					resultList = straightList;
 					break;
 			}
 
-			return (combination, maxCardPower);
-		}
+			combinationList = resultList;
 
-		//카드 숫자, 문양에 따라 내림차순 정렬
-		private class CardPowerComparer : IComparer<Card>
+			return (combination, topCardScore);
+		}
+        #endregion
+
+        //카드 숫자, 문양에 따라 내림차순으로 정렬하는 IComparer 클래스
+        //숫자: A > K > ... > 2
+        //문양: ♠ > ◆ > ♥ > ♣
+        private class CardScoreComparer : IComparer<Card>
 		{
 			public int Compare(Card cardA, Card cardB)
 			{
-				int cardAPower = cardA.GetCardPower();
-				int cardBPower = cardB.GetCardPower();
+				int cardAScore = cardA.GetCardScore();
+				int cardBScore = cardB.GetCardScore();
 
-				if (cardAPower == cardBPower)
+				if (cardAScore == cardBScore)
 					return 0;
-				if (cardAPower < cardBPower)
+				if (cardAScore < cardBScore)
 					return 1;
 				else
 					return -1;
 			}
 		}
 
-		private void CompareCombination((CardCombination, int) computerCombination, (CardCombination, int) playerCombination)
+		//조합 비교 후 결과 출력 메서드
+		private void CompareCombination((Combination, int) computer, (Combination, int) player)
 		{
-			if (playerCombination.Item1 > computerCombination.Item1 ||
-				(playerCombination.Item1 == computerCombination.Item1 && playerCombination.Item2 > computerCombination.Item2))
+			Combination computerCombination = computer.Item1;
+			int computerTopCardScore = computer.Item2;
+            Combination playerCombination = player.Item1;
+            int playerTopCardScore = player.Item2;
+
+            if ((int)playerCombination > (int)computerCombination ||
+				((int)playerCombination == (int)computerCombination && playerTopCardScore > computerTopCardScore))
 			{
-				Console.Write("이번 라운드에서 승리하였습니다. 베팅한 포인트의 2배를 얻습니다. ");
+				Console.Write("이번 라운드에서 승리하였습니다. 베팅한 포인트를 2배로 받습니다. ");
 				gamePoint += 2 * bettingPoint;
 			}
-			else if (playerCombination.Item1 < computerCombination.Item1 ||
-				(playerCombination.Item1 == computerCombination.Item1 && playerCombination.Item2 < computerCombination.Item2))
+			else if ((int)playerCombination < (int)computerCombination ||
+				(playerCombination == computerCombination && playerTopCardScore < computerTopCardScore))
 			{
 				Console.Write("이번 라운드에서 패배하였습니다. 베팅한 포인트를 모두 잃습니다. ");
 			}
 			else
 			{
-				Console.Write("이번 라운드는 무승부입니다. 베팅한 포인트의 절반만 얻습니다. ");
+				Console.Write("이번 라운드는 무승부입니다. 베팅한 포인트의 절반만 받습니다. ");
 				gamePoint += bettingPoint / 2;
 			}
 
 			Console.WriteLine($"[보유 포인트: {gamePoint}]");
 		}
 
+		//게임 종료 판단 메서드
 		private bool GetIsGameOver()
 		{
 			if (gamePoint <= 0)
