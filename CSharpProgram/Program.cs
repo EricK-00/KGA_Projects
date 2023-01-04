@@ -6,8 +6,8 @@ namespace CSharpProgram
 	{
 		static void Main(string[] args)
 		{
-			Poker poker = new Poker();
-			poker.PlayPoker();
+			CoinGame board = new CoinGame();
+			board.PlayGame();
 		}
 	}
 }
